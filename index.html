@@ -23,7 +23,7 @@
     /* Player layout */
     .life-wrapper { display: flex; flex: 1; }
     .player { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; overflow: hidden; }
-    .life-bar { position: absolute; top: 0; bottom: 0; left: 0; width: 100%; z-index: 1; transition: background 0.5s ease; }
+    .life-bar { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; transition: background 0.5s ease; }
     .player-name { font-size: 1.2rem; margin-bottom: 10px; z-index: 2; position: relative; }
     .life-display { font-size: 4rem; font-weight: bold; color: white; z-index: 2; position: relative; transition: transform 0.2s ease; }
     .life-animate { transform: scale(1.2); }
@@ -151,4 +151,20 @@
         maxLife = customValue;
         lifeTotals.A = lifeTotals.B = customValue;
         updateLifeDisplay('A');
-        updateLifeDisplay('
+        updateLifeDisplay('B');
+      }
+    }
+
+    function updateUserTime() {
+      const now = new Date();
+      const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      document.getElementById('userTime').textContent = `User Time: ${timeString}`;
+    }
+
+    updateLifeDisplay('A');
+    updateLifeDisplay('B');
+    updateUserTime();
+    setInterval(updateUserTime, 60000);
+  </script>
+</body>
+</html>
