@@ -121,7 +121,7 @@ input[type=number] {
   <!-- Static last updated date/time -->
   <span id="lastUpdated">Last Updated: September 14th, 2025 22:00 PM PST</span>
   <!-- Live user time only -->
-  <span id="userDateTime"></span>
+  <span id="yourTime"></span>
 </div>
 
 <div class="life-wrapper">
@@ -216,11 +216,17 @@ function getDateSuffix(day){
   switch(day%10){ case 1: return 'st'; case 2: return 'nd'; case 3: return 'rd'; default: return 'th'; }
 }
 
-function updateDateTime(){
+function updateYourTime(){
   const now = new Date();
   const pstOffset = -7;
   const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
   const pstTime = new Date(utc + (3600000 * pstOffset));
+
+  const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  const month = months[pstTime.getMonth()];
+  const day = pstTime.getDate();
+  const suffix = getDateSuffix(day);
+  const year = pstTime.getFullYear();
 
   let hours = pstTime.getHours();
   const minutes = String(pstTime.getMinutes()).padStart(2,'0');
@@ -229,11 +235,11 @@ function updateDateTime(){
   hours = hours%12; if(hours===0) hours=12;
   const hoursStr = String(hours).padStart(2,'0');
 
-  document.getElementById('userDateTime').textContent = `User Time: ${hoursStr}:${minutes}:${seconds} ${ampm}`;
+  document.getElementById('yourTime').textContent = `Your Time: ${month} ${day}${suffix}, ${year} ${hoursStr}:${minutes}:${seconds} ${ampm}`;
 }
 
-setInterval(updateDateTime,1000);
-updateDateTime();
+setInterval(updateYourTime,1000);
+updateYourTime();
 </script>
 
 </body>
