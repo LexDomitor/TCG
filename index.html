@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Life Counter</title>
 <style>
   html, body {
@@ -13,7 +16,7 @@
   .info-bar {
     background:#444; color:lightgray;
     display:flex; justify-content:space-between;
-    padding:5px 10px; font-size:0.9rem;
+    padding:3px 10px; font-size:0.7rem; /* smaller timestamp */
   }
   .format-bar {
     background:#333; padding:5px 10px; text-align:center;
@@ -139,14 +142,12 @@ function updateLifeDisplay(player){
   if(life<0) life=0;
   const percentage=life/maxLife[player];
   bar.style.height=(percentage*100)+'%';
-  // color based on percentage
   if(percentage<=0.25) bar.style.background='red';
   else if(percentage<=0.75) bar.style.background='goldenrod';
   else bar.style.background='green';
   document.getElementById('life'+player).textContent=lifeTotals[player];
   resetBtn.style.display=(lifeTotals[player]<=0)?'block':'none';
 
-  // trailing white bar animation
   if(trail.animation) clearInterval(trail.animation);
   trail.animation=setInterval(()=>{
     let current=parseFloat(trail.style.height||'100')/100;
@@ -159,7 +160,6 @@ function updateLifeDisplay(player){
   },15);
 }
 
-// global format change affecting both players
 function changeFormat(){
   const format=document.getElementById('formatSelect').value;
   let startingHP,incrementValue;
@@ -187,16 +187,24 @@ function updateYourTime(){
   const day=now.getDate();
   const daySuffix=day==1||day==21||day==31?'st':(day==2||day==22?'nd':(day==3||day==23?'rd':'th'));
   const year=now.getFullYear();
-  const hours=now.getHours().toString().padStart(2,'0');
+  let hours=now.getHours();
   const minutes=now.getMinutes().toString().padStart(2,'0');
   const seconds=now.getSeconds().toString().padStart(2,'0');
   const ampm=(hours>=12?'PM':'AM');
+  hours=hours%12; if(hours===0) hours=12;
+  hours=hours.toString().padStart(2,'0');
   document.getElementById('yourTime').textContent=`Your Time: ${month} ${day}${daySuffix}, ${year} ${hours}:${minutes}:${seconds} ${ampm} PST`;
 }
+
 setInterval(updateYourTime,1000);
 updateLifeDisplay('A');
 updateLifeDisplay('B');
 updateYourTime();
+
+// mobile scroll hack to hide URL bar
+window.addEventListener("load", function() {
+  setTimeout(() => window.scrollTo(0, 1), 0);
+});
 </script>
 
 </body>
