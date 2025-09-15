@@ -11,11 +11,11 @@ body { margin:0; font-family:sans-serif; background:#111; color:white; display:f
 .btn { padding:8px 16px; border:none; border-radius:6px; color:white; font-weight:bold; cursor:pointer; }
 .blue { background:#3b82f6; } .green { background:#22c55e; } .red { background:#ff3b3b; }
 .life-wrapper { display:flex; flex:1; }
-.player-container { flex:1; position:relative; display:flex; flex-direction:column; justify-content:flex-end; align-items:center; border:5px solid black; box-sizing:border-box; min-width:100px; }
-.life-bar { position:absolute; bottom:0; width:100%; background:green; transition:height 0.3s ease, background 0.3s ease; }
-.player-number { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-size:4rem; font-weight:bold; z-index:2; }
-.control-panel { display:flex; justify-content:center; gap:8px; margin-top:8px; flex-wrap:wrap; }
-.reset-btn { display:none; margin-top:8px; background:#ff3b3b; border:none; border-radius:6px; padding:6px 12px; cursor:pointer; }
+.player-container { flex:1; position:relative; display:flex; flex-direction:column; justify-content:flex-end; align-items:center; border:5px solid black; box-sizing:border-box; min-width:100px; margin:5px; }
+.life-bar { position:absolute; bottom:0; width:100%; background:green; transition:height 0.3s ease, background 0.3s ease; z-index:1; }
+.player-number { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-size:4rem; font-weight:bold; z-index:2; pointer-events:none; }
+.control-panel { display:flex; justify-content:center; gap:8px; margin-top:5px; flex-wrap:wrap; z-index:3; }
+.reset-btn { display:none; margin-top:5px; background:#ff3b3b; border:none; border-radius:6px; padding:6px 12px; cursor:pointer; }
 .hidden { display:none; }
 .center-text { display:flex; flex:1; justify-content:center; align-items:center; font-size:2rem; }
 </style>
@@ -25,7 +25,7 @@ body { margin:0; font-family:sans-serif; background:#111; color:white; display:f
 <!-- INFO BAR -->
 <div class="info-bar">
   <span>Last Updated: 2025-09-14 PST</span>
-  <span id="userTime"></span>
+  <span id="userDateTime"></span>
 </div>
 
 <!-- HOME PAGE -->
@@ -78,14 +78,6 @@ body { margin:0; font-family:sans-serif; background:#111; color:white; display:f
 let lifeTotals = {A:20,B:20};
 let maxLife = 20;
 
-// USER TIME UPDATE
-function updateUserTime(){
-  const now = new Date();
-  document.getElementById('userTime').textContent = 'User Time: '+now.toLocaleTimeString();
-}
-setInterval(updateUserTime,1000);
-updateUserTime();
-
 // PAGE SWITCH
 function showPage(page){
   document.querySelectorAll('body > div').forEach(div=>div.classList.add('hidden'));
@@ -126,6 +118,44 @@ function resetLife(player){
   lifeTotals[player]=maxLife;
   updateLifeDisplay(player);
 }
+
+// DATE & TIME FORMATTING
+function getDateSuffix(day){
+  if(day>=11 && day<=13) return 'th';
+  switch(day%10){
+    case 1: return 'st';
+    case 2: return 'nd';
+    case 3: return 'rd';
+    default: return 'th';
+  }
+}
+
+function updateUserDateTime(){
+  const now = new Date();
+  // Convert to PST
+  const pstOffset = -7; // PDT is UTC-7
+  const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+  const pstTime = new Date(utc + (3600000 * pstOffset));
+
+  const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  const month = months[pstTime.getMonth()];
+  const day = pstTime.getDate();
+  const suffix = getDateSuffix(day);
+  const year = pstTime.getFullYear();
+
+  const hours = String(pstTime.getHours()).padStart(2,'0');
+  const minutes = String(pstTime.getMinutes()).padStart(2,'0');
+  const seconds = String(pstTime.getSeconds()).padStart(2,'0');
+
+  document.getElementById('userDateTime').textContent = `User Date: ${month} ${day}${suffix}, ${year} | User Time: ${hours}:${minutes}:${seconds}`;
+}
+
+setInterval(updateUserDateTime,1000);
+updateUserDateTime();
+
+// INIT
+updateLifeDisplay('A');
+updateLifeDisplay('B');
 </script>
 
 </body>
