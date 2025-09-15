@@ -1,134 +1,70 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Life Counter</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: sans-serif;
-      background: #111;
-      color: white;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-      box-sizing: border-box;
-    }
-    .info-bar {
-      background: #444;
-      padding: 5px 10px;
-      font-size: 0.9rem;
-      display: flex;
-      justify-content: space-between;
-      width: 100%;
-      box-sizing: border-box;
-    }
-    .life-wrapper {
-      display: flex;
-      width: 100%;
-      flex: 1;
-      gap: 10px;
-      justify-content: center;
-      align-items: stretch;
-    }
-    .player-container {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      height: 100%;
-    }
-    .name-field {
-      width: 100%;
-      text-align: center;
-      background: transparent;
-      border: none;
-      color: lightgray;
-      font-size: 2rem;
-      margin-bottom: 5px;
-    }
-    select {
-      background: transparent;
-      color: lightgray;
-      font-size: 1.5rem;
-      border: none;
-      margin-bottom: 5px;
-    }
-    .bar-container {
-      position: relative;
-      width: 90%;
-      flex: 1;
-      min-height: 0;
-      border: 5px solid black;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
-      box-sizing: border-box;
-      overflow: hidden;
-    }
-    .life-bar {
-      position: absolute;
-      bottom: 0;
-      width: 100%;
-      z-index: 2;
-      height: 100%;
-      transition: height 0.2s ease;
-    }
-    .trail-bar {
-      position: absolute;
-      bottom: 0;
-      width: 100%;
-      background: white;
-      z-index: 1;
-      height: 100%;
-      transition: height 0.5s ease;
-    }
-    .player-number {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 3rem;
-      font-weight: bold;
-      z-index: 3;
-      pointer-events: none;
-      color: white;
-    }
-    .control-panel {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 8px;
-      margin-top: 5px;
-      z-index: 4;
-    }
-    input[type=number] {
-      width: 60px;
-      text-align: center;
-      border-radius: 4px;
-      border: none;
-      background: transparent;
-      color: lightgray;
-      font-size: 2rem;
-    }
-    .btn {
-      padding: 10px 20px;
-      border: none;
-      border-radius: 6px;
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-      font-size: 1rem;
-    }
-    .blue { background: #3b82f6; }
-    .green { background: #22c55e; }
-    .red { background: #ff3b3b; }
-    .reset-btn { background: #888; margin-top: 5px; display: none; }
-    #lastUpdated {
-      color: lightgray;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Life Counter</title>
+<style>
+  html, body {
+    margin:0; padding:0; height:100%; width:100%;
+    background:#111; color:white; font-family:sans-serif;
+    overflow:hidden; display:flex; flex-direction:column;
+  }
+  .info-bar {
+    background:#444; color:lightgray;
+    display:flex; justify-content:space-between;
+    padding:5px 10px; font-size:0.9rem;
+  }
+  .format-bar {
+    background:#333; padding:5px 10px; text-align:center;
+  }
+  select {
+    background:transparent; color:lightgray;
+    font-size:1.5rem; border:none; outline:none;
+  }
+  .life-wrapper {
+    display:flex; flex:1; gap:10px; padding:0;
+  }
+  .player-container {
+    flex:1; display:flex; flex-direction:column;
+    align-items:center; justify-content:flex-start;
+  }
+  .name-field {
+    width:100%; text-align:center;
+    background:transparent; border:none; color:lightgray;
+    font-size:2rem; margin-bottom:5px;
+  }
+  .bar-container {
+    position:relative; width:90%; flex:1; min-height:0;
+    border:5px solid black; display:flex; flex-direction:column;
+    justify-content:flex-end; overflow:hidden; margin-bottom:5px;
+  }
+  .life-bar {
+    position:absolute; bottom:0; width:100%; z-index:2;
+    transition: height 0.2s ease;
+  }
+  .trail-bar {
+    position:absolute; bottom:0; width:100%; z-index:1;
+    background:white; transition: height 0.5s ease;
+  }
+  .player-number {
+    position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+    font-size:3rem; font-weight:bold; z-index:3; pointer-events:none;
+  }
+  .control-panel {
+    display:flex; justify-content:center; align-items:center; gap:8px;
+    margin-bottom:5px;
+  }
+  input[type=number] {
+    width:60px; text-align:center; border:none; background:transparent;
+    color:lightgray; font-size:2rem; border-radius:4px;
+  }
+  .btn { padding:10px 20px; border:none; border-radius:6px; font-weight:bold; cursor:pointer; font-size:1rem; color:white; }
+  .blue { background:#3b82f6; }
+  .green { background:#22c55e; }
+  .red { background:#ff3b3b; }
+  .reset-btn { background:#888; margin-top:5px; display:none; }
+</style>
 </head>
 <body>
 
@@ -137,15 +73,19 @@
   <span id="yourTime"></span>
 </div>
 
+<div class="format-bar">
+  FORMAT:
+  <select id="formatSelect" onchange="changeFormat()">
+    <option value="MTG Standard" selected>MTG Standard</option>
+    <option value="MTG Commander">MTG Commander</option>
+    <option value="YuGiOh">YuGiOh</option>
+    <option value="YGO Speed Duel">YGO Speed Duel</option>
+  </select>
+</div>
+
 <div class="life-wrapper">
   <div class="player-container">
     <input class="name-field" id="nameA" value="Player A">
-    <select id="formatSelectA" onchange="changeFormat()">
-      <option value="MTG Standard" selected>MTG Standard</option>
-      <option value="MTG Commander">MTG Commander</option>
-      <option value="YuGiOh">YuGiOh</option>
-      <option value="YGO Speed Duel">YGO Speed Duel</option>
-    </select>
     <div class="bar-container" id="containerA">
       <div class="trail-bar" id="trailA"></div>
       <div class="life-bar" id="barA"></div>
@@ -161,12 +101,6 @@
 
   <div class="player-container">
     <input class="name-field" id="nameB" value="Player B">
-    <select id="formatSelectB" onchange="changeFormat()">
-      <option value="MTG Standard" selected>MTG Standard</option>
-      <option value="MTG Commander">MTG Commander</option>
-      <option value="YuGiOh">YuGiOh</option>
-      <option value="YGO Speed Duel">YGO Speed Duel</option>
-    </select>
     <div class="bar-container" id="containerB">
       <div class="trail-bar" id="trailB"></div>
       <div class="life-bar" id="barB"></div>
@@ -182,98 +116,88 @@
 </div>
 
 <script>
-let lifeTotals = {A: 20, B: 20};
-let maxLife = {A: 20, B: 20};
-let incrementValue = 1;
+let lifeTotals = {A:20,B:20};
+let maxLife = {A:20,B:20};
 
-function adjustLife(player, action) {
-  const amt = parseInt(document.getElementById('adjustAmount' + player).value) || 1;
-  lifeTotals[player] += (action === 'add' ? amt : -amt);
+function adjustLife(player,action){
+  const amt = parseInt(document.getElementById('adjustAmount'+player).value)||1;
+  lifeTotals[player] += (action==='add'?amt:-amt);
   updateLifeDisplay(player);
 }
 
-function resetLife(player) {
-  lifeTotals[player] = maxLife[player];
+function resetLife(player){
+  lifeTotals[player]=maxLife[player];
   updateLifeDisplay(player);
 }
 
-function updateLifeDisplay(player) {
-  const bar = document.getElementById('bar' + player);
-  const trail = document.getElementById('trail' + player);
-  const resetBtn = document.getElementById('reset' + player);
-  let life = lifeTotals[player];
+function updateLifeDisplay(player){
+  const bar=document.getElementById('bar'+player);
+  const trail=document.getElementById('trail'+player);
+  const resetBtn=document.getElementById('reset'+player);
+  let life=lifeTotals[player];
+  if(life>maxLife[player]) life=maxLife[player];
+  if(life<0) life=0;
+  const percentage=life/maxLife[player];
+  bar.style.height=(percentage*100)+'%';
+  // color based on percentage
+  if(percentage<=0.25) bar.style.background='red';
+  else if(percentage<=0.75) bar.style.background='goldenrod';
+  else bar.style.background='green';
+  document.getElementById('life'+player).textContent=lifeTotals[player];
+  resetBtn.style.display=(lifeTotals[player]<=0)?'block':'none';
 
-  if (life > maxLife[player]) life = maxLife[player];
-  if (life < 0) life = 0;
-
-  const percentage = life / maxLife[player];
-  bar.style.height = (percentage * 100) + '%';
-
-  const ratio = life / maxLife[player];
-  bar.style.background = ratio <= 0.25 ? 'red' : ratio <= 0.75 ? 'goldenrod' : 'green';
-  document.getElementById('life' + player).textContent = lifeTotals[player];
-
-  resetBtn.style.display = (lifeTotals[player] <= 0) ? 'block' : 'none';
-
-  if (trail.animation) clearInterval(trail.animation);
-  trail.animation = setInterval(() => {
-    let current = parseFloat(trail.style.height || '100') / 100;
-    if (current > percentage) {
-      current -= 0.02;
-      if (current <= percentage) {
-        current = percentage;
-        clearInterval(trail.animation);
-      }
-    } else if (current < percentage) {
-      current += 0.02;
-      if (current >= percentage) {
-        current = percentage;
-        clearInterval(trail.animation);
-      }
+  // trailing white bar animation
+  if(trail.animation) clearInterval(trail.animation);
+  trail.animation=setInterval(()=>{
+    let current=parseFloat(trail.style.height||'100')/100;
+    if(current>percentage) current-=0.02;
+    else if(current<percentage) current+=0.02;
+    if((current<=percentage && current>percentage-0.02)||(current>=percentage && current<percentage+0.02)){
+      current=percentage; clearInterval(trail.animation);
     }
-    trail.style.height = (current * 100) + '%';
-  }, 15);
+    trail.style.height=(current*100)+'%';
+  },15);
 }
 
-function changeFormat() {
-  const formatA = document.getElementById('formatSelectA').value;
-  const formatB = document.getElementById('formatSelectB').value;
-  let startingHP, incrementValue;
-
-  switch (formatA) {
-    case 'MTG Standard':
-      startingHP = 20;
-      incrementValue = 1;
-      break;
-    case 'MTG Commander':
-      startingHP = 40;
-      incrementValue = 1;
-      break;
-    case 'YuGiOh':
-      startingHP = 8000;
-      incrementValue = 500;
-      break;
-    case 'YGO Speed Duel':
-      startingHP = 4000;
-      incrementValue = 500;
-      break;
-    default:
-      startingHP = 20;
-      incrementValue = 1;
+// global format change affecting both players
+function changeFormat(){
+  const format=document.getElementById('formatSelect').value;
+  let startingHP,incrementValue;
+  switch(format){
+    case 'MTG Standard': startingHP=20; incrementValue=1; break;
+    case 'MTG Commander': startingHP=40; incrementValue=1; break;
+    case 'YuGiOh': startingHP=8000; incrementValue=500; break;
+    case 'YGO Speed Duel': startingHP=4000; incrementValue=500; break;
+    default: startingHP=20; incrementValue=1;
   }
-
-  lifeTotals['A'] = startingHP;
-  lifeTotals['B'] = startingHP;
-  maxLife['A'] = startingHP;
-  maxLife['B'] = startingHP;
+  lifeTotals['A']=startingHP;
+  lifeTotals['B']=startingHP;
+  maxLife['A']=startingHP;
+  maxLife['B']=startingHP;
+  document.getElementById('adjustAmountA').value=incrementValue;
+  document.getElementById('adjustAmountB').value=incrementValue;
   updateLifeDisplay('A');
   updateLifeDisplay('B');
-
-  document.getElementById('adjustAmountA').value = incrementValue;
-  document.getElementById('adjustAmountB').value = incrementValue;
 }
 
-function initHPBars() {
-  const players = ['A',
-::contentReference[oaicite:0]{index=0}
- 
+// live Your Time
+function updateYourTime(){
+  const now=new Date();
+  const month=now.toLocaleString('en-US',{month:'long'});
+  const day=now.getDate();
+  const daySuffix=day==1||day==21||day==31?'st':(day==2||day==22?'nd':(day==3||day==23?'rd':'th'));
+  const year=now.getFullYear();
+  const hours=now.getHours().toString().padStart(2,'0');
+  const minutes=now.getMinutes().toString().padStart(2,'0');
+  const seconds=now.getSeconds().toString().padStart(2,'0');
+  const ampm=(hours>=12?'PM':'AM');
+  document.getElementById('yourTime').textContent=`Your Time: ${month} ${day}${daySuffix}, ${year} ${hours}:${minutes}:${seconds} ${ampm} PST`;
+}
+setInterval(updateYourTime,1000);
+updateLifeDisplay('A');
+updateLifeDisplay('B');
+updateYourTime();
+</script>
+
+</body>
+</html>
