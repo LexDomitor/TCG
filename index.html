@@ -5,141 +5,87 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MTG Life Counter</title>
 <style>
-body { font-family:sans-serif; margin:0; display:flex; flex-direction:column; height:100vh; background:#111; color:white; overflow:hidden; }
-.timestamp { position:absolute; top:5px; left:10px; font-size:0.8rem; color:#888; line-height:1.2; z-index:10; }
-.btn { padding:8px 16px; border-radius:8px; color:white; font-weight:bold; cursor:pointer; border:none; margin:0 2px; }
-.blue { background:#3b82f6; } .blue:hover { background:#2563eb; }
-.green { background:#22c55e; } .green:hover { background:#16a34a; }
-.red { background:#ff3b3b; } .red:hover { background:#cc2b2b; }
-h1,h2 { margin:0; }
-.toolbar { display:flex; justify-content:center; align-items:center; padding:10px; background:#222; position:relative; z-index:10; gap:20px; }
-select,input[type='number'] { padding:4px 8px; font-size:1rem; }
-.life-wrapper { display:flex; flex:1; justify-content:center; align-items:flex-end; gap:20px; }
-.player { display:flex; flex-direction:column; align-items:center; justify-content:flex-end; position:relative; }
-.player-name { font-size:1.2rem; margin-bottom:10px; z-index:2; position:relative; }
-.life-display { font-size:3rem; font-weight:bold; color:white; z-index:2; position:relative; transition: transform 0.2s ease; }
-.life-animate { transform:scale(1.2); }
-.control-panel { display:flex; gap:8px; margin-top:10px; align-items:center; z-index:2; position:relative; }
-.player-controls-left { flex-direction:row; }
-.player-controls-right { flex-direction:row-reverse; }
-.life-bar-container { position:relative; border:5px solid black; min-width:80px; min-height:200px; display:flex; justify-content:center; align-items:flex-end; margin:0 10px; }
-.life-fill-back { position:absolute; bottom:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:0; transition:height 0.5s ease; }
-.life-bar { position:absolute; bottom:0; width:100%; height:100%; z-index:1; transition:height 0.3s ease, background 0.5s ease; }
-.reset-btn { display:none; margin-top:8px; padding:6px 12px; background:#ff3b3b; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:bold; z-index:2; }
-.hidden { display:none; }
+body { margin:0; font-family:sans-serif; background:#111; color:white; display:flex; flex-direction:column; height:100vh; }
+.toolbar { display:flex; align-items:center; justify-content:center; gap:20px; padding:10px; background:#222; }
+.btn { padding:8px 16px; border:none; border-radius:6px; color:white; font-weight:bold; cursor:pointer; }
+.blue { background:#3b82f6; } .green { background:#22c55e; } .red { background:#ff3b3b; }
+.life-wrapper { display:flex; flex:1; }
+.player-container { flex:1; position:relative; display:flex; justify-content:center; align-items:flex-end; border:5px solid #a6ff00; /* slime border */ box-sizing:border-box; min-width:100px; }
+.life-bar { position:absolute; bottom:0; width:100%; background:green; transition:height 0.3s ease, background 0.3s ease; }
+.player-number { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-size:4rem; font-weight:bold; z-index:2; }
+.control-panel { display:flex; justify-content:center; gap:8px; margin-top:8px; }
+.reset-btn { display:none; margin-top:8px; background:#ff3b3b; border:none; border-radius:6px; padding:6px 12px; cursor:pointer; }
 </style>
 </head>
 <body>
 
-<div id="home">
-  <h1 style="text-align:center; margin:20px 0;">MTG Tools</h1>
-  <div style="display:flex; flex-direction:column; align-items:center; gap:10px;">
-    <button class="btn blue" onclick="showPage('lifeCounter')">MTG Life Counter</button>
-    <button class="btn green" onclick="showPage('archnemesis')">MTG Archnemesis</button>
+<div class="toolbar">
+  <div>
+    <label>Preset: </label>
+    <select id="presetSelect" onchange="updatePreset()">
+      <option value="standard" selected>STANDARD (20)</option>
+      <option value="commander">COMMANDER (40)</option>
+      <option value="custom">CUSTOM</option>
+    </select>
+    <input type="number" id="customLifeInput" class="hidden" placeholder="Custom Life" min="1" onchange="setCustomLife()">
+  </div>
+  <div>
+    <label>Border Scale: </label>
+    <button class="btn blue" onclick="adjustBorder(1)">+</button>
+    <button class="btn green" onclick="adjustBorder(-1)">-</button>
+    <span id="borderScaleValue">5</span>
   </div>
 </div>
 
-<div id="lifeCounter" class="hidden" style="flex:1; display:flex; flex-direction:column;">
-  <div class="toolbar">
-    <div class="timestamp">
-      Last Updated: 2025-09-14 23:55 PST<br>
-      <span id="userTime">User Time: --:--</span>
-    </div>
-
-    <div>
-      <label for="presetSelect">Preset: </label>
-      <select id="presetSelect" onchange="updatePreset()">
-        <option value="standard" selected>STANDARD (20)</option>
-        <option value="commander">COMMANDER (40)</option>
-        <option value="custom">CUSTOM</option>
-      </select>
-      <input id="customLifeInput" type="number" min="1" placeholder="Custom Life" class="hidden" onchange="setCustomLife()">
-    </div>
-
-    <div>
-      <label>Border Scale: </label>
-      <button class="btn blue" onclick="adjustBorder(1)">+</button>
-      <button class="btn green" onclick="adjustBorder(-1)">-</button>
-      <span id="borderScaleValue">5</span>
-    </div>
-
-    <button class="btn blue" onclick="showPage('home')">Home</button>
-  </div>
-
-  <div class="life-wrapper">
-    <div class="player" id="playerA">
-      <div class="life-bar-container" id="containerA">
-        <div class="life-fill-back" id="fillBackA"></div>
-        <div class="life-bar" id="barA"></div>
-      </div>
-      <div class="player-name">Player A</div>
-      <div class="life-display" id="lifeA">20</div>
-      <div class="control-panel player-controls-left">
-        <button class="btn blue" onclick="adjustLife('A','add')">+</button>
-        <button class="btn green" onclick="adjustLife('A','subtract')">-</button>
-        <input id="adjustAmountA" type="number" value="1" min="1">
-      </div>
+<div class="life-wrapper">
+  <div class="player-container" id="containerA">
+    <div class="life-bar" id="barA"></div>
+    <div class="player-number" id="lifeA">20</div>
+    <div class="control-panel">
+      <button class="btn blue" onclick="adjustLife('A','add')">+</button>
+      <button class="btn green" onclick="adjustLife('A','subtract')">-</button>
+      <input type="number" id="adjustAmountA" value="1" min="1">
       <button class="reset-btn" id="resetA" onclick="resetLife('A')">Reset HP</button>
     </div>
-
-    <div class="player" id="playerB">
-      <div class="life-bar-container" id="containerB">
-        <div class="life-fill-back" id="fillBackB"></div>
-        <div class="life-bar" id="barB"></div>
-      </div>
-      <div class="player-name">Player B</div>
-      <div class="life-display" id="lifeB">20</div>
-      <div class="control-panel player-controls-right">
-        <button class="btn blue" onclick="adjustLife('B','add')">+</button>
-        <button class="btn green" onclick="adjustLife('B','subtract')">-</button>
-        <input id="adjustAmountB" type="number" value="1" min="1">
-      </div>
+  </div>
+  <div class="player-container" id="containerB">
+    <div class="life-bar" id="barB"></div>
+    <div class="player-number" id="lifeB">20</div>
+    <div class="control-panel">
+      <button class="btn blue" onclick="adjustLife('B','add')">+</button>
+      <button class="btn green" onclick="adjustLife('B','subtract')">-</button>
+      <input type="number" id="adjustAmountB" value="1" min="1">
       <button class="reset-btn" id="resetB" onclick="resetLife('B')">Reset HP</button>
     </div>
   </div>
 </div>
 
-<div id="archnemesis" class="hidden">
-  <h2>MTG Archnemesis</h2>
-  <div class="nav" onclick="showPage('home')">Back to Home</div>
-</div>
-
 <script>
-let lifeTotals = { A:20, B:20 };
+let lifeTotals = {A:20,B:20};
 let maxLife = 20;
 let borderScale = 5;
 
-function showPage(page){
-  document.querySelectorAll('body > div').forEach(div=>div.classList.add('hidden'));
-  document.getElementById(page).classList.remove('hidden');
-}
-
 function updateLifeDisplay(player){
-  const lifeBar = document.getElementById('bar'+player);
-  const fillBack = document.getElementById('fillBack'+player);
-  const lifeDisplay = document.getElementById('life'+player);
+  const bar = document.getElementById('bar'+player);
+  const life = lifeTotals[player];
+  const percentage = Math.max(0, life/maxLife);
+  const numberEl = document.getElementById('life'+player);
   const resetBtn = document.getElementById('reset'+player);
-  const total = lifeTotals[player];
-  const percentage = total/maxLife;
-
-  lifeBar.style.height = Math.max(0, percentage*100)+'%';
   
-  if(total<=0){
-    lifeBar.style.background='black';
+  bar.style.height = (percentage*100)+'%';
+  if(life<=0){
+    bar.style.background='black';
     resetBtn.style.display='inline-block';
   } else {
-    lifeBar.style.background = percentage<=0.25?'red':percentage<=0.75?'goldenrod':'green';
+    bar.style.background = percentage<=0.25?'red':percentage<=0.75?'goldenrod':'green';
     resetBtn.style.display='none';
   }
-
-  lifeDisplay.textContent = total;
-  lifeDisplay.classList.add('life-animate');
-  setTimeout(()=>lifeDisplay.classList.remove('life-animate'),150);
+  numberEl.textContent = life;
 }
 
 function adjustLife(player,action){
-  const amount=parseInt(document.getElementById('adjustAmount'+player).value)||1;
-  lifeTotals[player]+=(action==='add'?amount:-amount);
+  const amt=parseInt(document.getElementById('adjustAmount'+player).value)||1;
+  lifeTotals[player]+=(action==='add'?amt:-amt);
   updateLifeDisplay(player);
 }
 
@@ -149,8 +95,8 @@ function resetLife(player){
 }
 
 function updatePreset(){
-  const preset = document.getElementById('presetSelect').value;
-  const customInput = document.getElementById('customLifeInput');
+  const preset=document.getElementById('presetSelect').value;
+  const customInput=document.getElementById('customLifeInput');
   if(preset==='standard'){ customInput.classList.add('hidden'); maxLife=20; lifeTotals.A=lifeTotals.B=20; }
   else if(preset==='commander'){ customInput.classList.add('hidden'); maxLife=40; lifeTotals.A=lifeTotals.B=40; }
   else { customInput.classList.remove('hidden'); customInput.focus(); }
@@ -162,7 +108,17 @@ function setCustomLife(){
   if(!isNaN(val)&&val>0){ maxLife=val; lifeTotals.A=lifeTotals.B=val; updateLifeDisplay('A'); updateLifeDisplay('B'); }
 }
 
-function updateUserTime(){
-  const now=new Date();
-  const timeString = now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-  document.get
+function adjustBorder(factor){
+  borderScale += factor;
+  if(borderScale<1) borderScale=1;
+  document.getElementById('borderScaleValue').textContent=borderScale;
+  document.getElementById('containerA').style.borderWidth=borderScale+'px';
+  document.getElementById('containerB').style.borderWidth=borderScale+'px';
+}
+
+updateLifeDisplay('A');
+updateLifeDisplay('B');
+</script>
+
+</body>
+</html>
