@@ -6,20 +6,27 @@
 <title>MTG Tools</title>
 <style>
 body { margin:0; font-family:sans-serif; background:#111; color:white; display:flex; flex-direction:column; height:100vh; }
-.toolbar { display:flex; align-items:center; justify-content:center; gap:20px; padding:10px; background:#222; }
+.info-bar { background:#444; padding:5px 10px; font-size:0.9rem; display:flex; justify-content:space-between; color:#eee; }
+.toolbar { display:flex; align-items:center; justify-content:center; gap:20px; padding:10px; background:#222; flex-wrap:wrap; }
 .btn { padding:8px 16px; border:none; border-radius:6px; color:white; font-weight:bold; cursor:pointer; }
 .blue { background:#3b82f6; } .green { background:#22c55e; } .red { background:#ff3b3b; }
 .life-wrapper { display:flex; flex:1; }
-.player-container { flex:1; position:relative; display:flex; justify-content:center; align-items:flex-end; border:5px solid black; box-sizing:border-box; min-width:100px; }
+.player-container { flex:1; position:relative; display:flex; flex-direction:column; justify-content:flex-end; align-items:center; border:5px solid black; box-sizing:border-box; min-width:100px; }
 .life-bar { position:absolute; bottom:0; width:100%; background:green; transition:height 0.3s ease, background 0.3s ease; }
 .player-number { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-size:4rem; font-weight:bold; z-index:2; }
-.control-panel { display:flex; justify-content:center; gap:8px; margin-top:8px; }
+.control-panel { display:flex; justify-content:center; gap:8px; margin-top:8px; flex-wrap:wrap; }
 .reset-btn { display:none; margin-top:8px; background:#ff3b3b; border:none; border-radius:6px; padding:6px 12px; cursor:pointer; }
 .hidden { display:none; }
 .center-text { display:flex; flex:1; justify-content:center; align-items:center; font-size:2rem; }
 </style>
 </head>
 <body>
+
+<!-- INFO BAR -->
+<div class="info-bar">
+  <span>Last Updated: 2025-09-14 PST</span>
+  <span id="userTime"></span>
+</div>
 
 <!-- HOME PAGE -->
 <div id="home">
@@ -40,6 +47,11 @@ body { margin:0; font-family:sans-serif; background:#111; color:white; display:f
         <option value="custom">CUSTOM</option>
       </select>
       <input type="number" id="customLifeInput" class="hidden" placeholder="Custom Life" min="1" onchange="setCustomLife()">
+    </div>
+    <div>
+      <label>Border Scale: </label>
+      <button class="btn blue" onclick="adjustBorder(1)">+</button>
+      <button class="btn green" onclick="adjustBorder(-1)">-</button>
     </div>
     <button class="btn blue" onclick="showPage('home')">Home</button>
   </div>
@@ -79,13 +91,21 @@ body { margin:0; font-family:sans-serif; background:#111; color:white; display:f
 <script>
 let lifeTotals = {A:20,B:20};
 let maxLife = 20;
+let borderScale = 5;
+
+// USER TIME UPDATE
+function updateUserTime(){
+  const now = new Date();
+  document.getElementById('userTime').textContent = 'User Time: '+now.toLocaleTimeString();
+}
+setInterval(updateUserTime,1000);
+updateUserTime();
 
 // PAGE SWITCH
 function showPage(page){
   document.querySelectorAll('body > div').forEach(div=>div.classList.add('hidden'));
   document.getElementById(page).classList.remove('hidden');
   if(page==='lifeCounter'){
-    // preload preset dropdown
     const presetSelect = document.getElementById('presetSelect');
     if(maxLife===20) presetSelect.value='standard';
     else if(maxLife===40) presetSelect.value='commander';
@@ -137,9 +157,18 @@ function updatePreset(){
   updateLifeDisplay('A'); updateLifeDisplay('B');
 }
 
+// CUSTOM LIFE
 function setCustomLife(){
   const val=parseInt(document.getElementById('customLifeInput').value);
   if(!isNaN(val)&&val>0){ maxLife=val; lifeTotals.A=lifeTotals.B=val; updateLifeDisplay('A'); updateLifeDisplay('B'); }
+}
+
+// BORDER SCALE ADJUST
+function adjustBorder(factor){
+  borderScale += factor;
+  if(borderScale<1) borderScale=1;
+  document.getElementById('containerA').style.borderWidth=borderScale+'px';
+  document.getElementById('containerB').style.borderWidth=borderScale+'px';
 }
 
 // INIT
