@@ -118,7 +118,9 @@ input[type=number] {
 <body>
 
 <div class="info-bar">
-  <span id="lastUpdated"></span>
+  <!-- Static last updated date/time -->
+  <span id="lastUpdated">Last Updated: September 14th, 2025 22:00 PM PST</span>
+  <!-- Live user time only -->
   <span id="userDateTime"></span>
 </div>
 
@@ -196,53 +198,29 @@ function updateLifeDisplay(player){
   },15);
 }
 
-document.getElementById('trailA').style.height='100%';
-document.getElementById('trailB').style.height='100%';
-updateLifeDisplay('A');
-updateLifeDisplay('B');
+// Initialize HP bars properly on page load
+function initHPBars(){
+  const players = ['A','B'];
+  players.forEach(p=>{
+    document.getElementById('bar'+p).style.height = '100%';
+    document.getElementById('trail'+p).style.height = '100%';
+    updateLifeDisplay(p);
+  });
+}
 
+initHPBars();
+
+// Live right-hand timestamp
 function getDateSuffix(day){
   if(day>=11 && day<=13) return 'th';
   switch(day%10){ case 1: return 'st'; case 2: return 'nd'; case 3: return 'rd'; default: return 'th'; }
 }
 
-// Get fixed timestamp for left-hand side
-function getFixedTimestamp(){
-  const now = new Date();
-  const pstOffset = -7;
-  const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
-  const pstTime = new Date(utc + (3600000 * pstOffset));
-
-  const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-  const month = months[pstTime.getMonth()];
-  const day = pstTime.getDate();
-  const suffix = getDateSuffix(day);
-  const year = pstTime.getFullYear();
-
-  let hours = pstTime.getHours();
-  const minutes = String(pstTime.getMinutes()).padStart(2,'0');
-  const seconds = String(pstTime.getSeconds()).padStart(2,'0');
-  const ampm = hours>=12?'PM':'AM';
-  hours = hours%12; if(hours===0) hours=12;
-  const hoursStr = String(hours).padStart(2,'0');
-
-  return `Last Updated: ${hoursStr}:${minutes}:${seconds} ${ampm} PST | User Date: ${month} ${day}${suffix}, ${year}`;
-}
-
-document.getElementById('lastUpdated').textContent = getFixedTimestamp();
-
-// Live right-hand timestamp
 function updateDateTime(){
   const now = new Date();
   const pstOffset = -7;
   const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
   const pstTime = new Date(utc + (3600000 * pstOffset));
-
-  const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-  const month = months[pstTime.getMonth()];
-  const day = pstTime.getDate();
-  const suffix = getDateSuffix(day);
-  const year = pstTime.getFullYear();
 
   let hours = pstTime.getHours();
   const minutes = String(pstTime.getMinutes()).padStart(2,'0');
