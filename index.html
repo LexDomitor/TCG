@@ -5,9 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MTG Tools</title>
   <style>
-    body { font-family: sans-serif; margin: 0; display: flex; flex-direction: column; min-height: 100vh; background: #111; color: white; }
+    body { font-family: sans-serif; margin: 0; display: flex; flex-direction: column; min-height: 100vh; background: #111; color: white; overflow: hidden; }
+    .timestamp { position: absolute; top: 5px; left: 10px; font-size: 0.8rem; color: #888; line-height: 1.2; z-index: 10; }
     .hidden { display: none; }
-    .btn { padding: 8px 16px; border-radius: 8px; color: white; text-decoration: none; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.3); cursor: pointer; border: none; }
+    .btn { padding: 8px 16px; border-radius: 8px; color: white; text-decoration: none; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.3); cursor: pointer; border: none; z-index: 10; position: relative; }
     .blue { background: #3b82f6; }
     .blue:hover { background: #2563eb; }
     .green { background: #22c55e; }
@@ -16,18 +17,19 @@
     .nav { cursor: pointer; text-decoration: underline; }
 
     /* Toolbar */
-    .toolbar { display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #222; }
+    .toolbar { display: flex; justify-content: center; align-items: center; padding: 10px; background: #222; position: relative; z-index: 10; }
     select, input[type='number'] { padding: 4px 8px; font-size: 1rem; }
 
     /* Player layout */
     .life-wrapper { display: flex; flex: 1; }
-    .player { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; position: relative; }
-    .player-name { font-size: 1.2rem; margin-bottom: 10px; }
-    .life-display { font-size: 4rem; font-weight: bold; background: green; padding: 20px 40px; border-radius: 12px; transition: background 0.3s ease, transform 0.2s ease; color: white; }
+    .player { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+    .life-bar { position: absolute; top: 0; bottom: 0; left: 0; width: 100%; z-index: 1; transition: background 0.5s ease; }
+    .player-name { font-size: 1.2rem; margin-bottom: 10px; z-index: 2; position: relative; }
+    .life-display { font-size: 4rem; font-weight: bold; color: white; z-index: 2; position: relative; transition: transform 0.2s ease; }
     .life-animate { transform: scale(1.2); }
 
     /* Control positioning */
-    .control-panel { display: flex; gap: 8px; margin-top: 10px; align-items: center; }
+    .control-panel { display: flex; gap: 8px; margin-top: 10px; align-items: center; z-index: 2; position: relative; }
     .player-controls-left { flex-direction: row; }
     .player-controls-right { flex-direction: row-reverse; }
   </style>
@@ -43,6 +45,10 @@
 
   <div id="lifeCounter" class="hidden" style="flex:1; display:flex; flex-direction:column;">
     <div class="toolbar">
+      <div class="timestamp">
+        Last Updated: 2025-09-14 22:36<br>
+        <span id="userTime">User Time: --:--</span>
+      </div>
       <div>
         <label for="presetSelect">Preset: </label>
         <select id="presetSelect" onchange="updatePreset()">
@@ -57,6 +63,7 @@
 
     <div class="life-wrapper">
       <div class="player" id="playerA">
+        <div class="life-bar" id="barA"></div>
         <div class="player-name">Player A</div>
         <div class="life-display" id="lifeA">20</div>
         <div class="control-panel player-controls-left">
@@ -67,6 +74,7 @@
       </div>
 
       <div class="player" id="playerB">
+        <div class="life-bar" id="barB"></div>
         <div class="player-name">Player B</div>
         <div class="life-display" id="lifeB">20</div>
         <div class="control-panel player-controls-right">
@@ -94,16 +102,17 @@
 
     function updateLifeDisplay(player) {
       const lifeDisplay = document.getElementById('life' + player);
+      const lifeBar = document.getElementById('bar' + player);
       const total = lifeTotals[player];
       lifeDisplay.textContent = total;
 
       const percentage = total / maxLife;
       if (percentage <= 0.25) {
-        lifeDisplay.style.background = 'red';
+        lifeBar.style.background = 'red';
       } else if (percentage <= 0.75) {
-        lifeDisplay.style.background = 'goldenrod';
+        lifeBar.style.background = 'goldenrod';
       } else {
-        lifeDisplay.style.background = 'green';
+        lifeBar.style.background = 'green';
       }
 
       lifeDisplay.classList.add('life-animate');
@@ -142,12 +151,4 @@
         maxLife = customValue;
         lifeTotals.A = lifeTotals.B = customValue;
         updateLifeDisplay('A');
-        updateLifeDisplay('B');
-      }
-    }
-
-    updateLifeDisplay('A');
-    updateLifeDisplay('B');
-  </script>
-</body>
-</html>
+        updateLifeDisplay('
