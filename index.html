@@ -5,18 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Life Counter</title>
 <style>
-body { margin:0; font-family:sans-serif; background:#111; color:white; display:flex; flex-direction:column; height:100vh; justify-content:center; align-items:center;}
+body { margin:0; font-family:sans-serif; background:#111; color:white; display:flex; flex-direction:column; height:100vh; align-items:center;}
 .info-bar { background:#444; padding:5px 10px; font-size:0.9rem; display:flex; justify-content:space-between; width:100%; box-sizing:border-box; }
-.life-wrapper { display:flex; flex:1; width:90%; gap:10px; margin-top:20px; justify-content:center; align-items:flex-end; }
+.life-wrapper { display:flex; width:90%; gap:10px; margin-top:10px; justify-content:center; align-items:flex-start; }
 .player-container { flex:1; display:flex; flex-direction:column; align-items:center; min-width:120px; }
 .bar-container { position:relative; width:100%; flex:1; border:5px solid black; display:flex; flex-direction:column; justify-content:flex-end; min-height:300px; box-sizing:border-box; overflow:hidden; }
 .life-bar { position:absolute; bottom:0; width:100%; z-index:2; transition:height 0.2s ease; }
-.trail-bar { position:absolute; bottom:0; width:100%; background:white; opacity:0.5; z-index:1; transition:height 0.5s ease; }
+.trail-bar { position:absolute; bottom:0; width:100%; background:white; z-index:1; transition:height 0.5s ease; }
 .player-number { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-size:3rem; font-weight:bold; z-index:3; pointer-events:none; color:white; }
 .control-panel { display:flex; justify-content:center; align-items:center; gap:8px; margin-top:10px; z-index:4; }
 input[type=number] { width:60px; text-align:center; border-radius:4px; border:none; }
 .btn { padding:10px 20px; border:none; border-radius:6px; color:white; font-weight:bold; cursor:pointer; font-size:1rem; }
 .blue { background:#3b82f6; } .green { background:#22c55e; } .red { background:#ff3b3b; } 
+.reset-btn { background:#888; margin-top:5px; display:none; }
 </style>
 </head>
 <body>
@@ -38,6 +39,7 @@ input[type=number] { width:60px; text-align:center; border-radius:4px; border:no
       <input type="number" id="adjustAmountA" value="1" min="1">
       <button class="btn blue" onclick="adjustLife('A','add')">+</button>
     </div>
+    <button class="btn reset-btn" id="resetA" onclick="resetLife('A')">Reset</button>
   </div>
 
   <div class="player-container">
@@ -51,6 +53,7 @@ input[type=number] { width:60px; text-align:center; border-radius:4px; border:no
       <input type="number" id="adjustAmountB" value="1" min="1">
       <button class="btn blue" onclick="adjustLife('B','add')">+</button>
     </div>
+    <button class="btn reset-btn" id="resetB" onclick="resetLife('B')">Reset</button>
   </div>
 </div>
 
@@ -64,12 +67,18 @@ function adjustLife(player,action){
   updateLifeDisplay(player);
 }
 
+function resetLife(player){
+  lifeTotals[player] = maxLife[player];
+  updateLifeDisplay(player);
+}
+
 function updateLifeDisplay(player){
   const bar = document.getElementById('bar'+player);
   const trail = document.getElementById('trail'+player);
+  const resetBtn = document.getElementById('reset'+player);
   let life = lifeTotals[player];
 
-  // Clamp life for display
+  // Clamp life
   if(life > maxLife[player]) life = maxLife[player];
   if(life < 0) life = 0;
 
@@ -80,7 +89,10 @@ function updateLifeDisplay(player){
   bar.style.background = ratio <= 0.25 ? 'red' : ratio <= 0.75 ? 'goldenrod' : 'green';
   document.getElementById('life'+player).textContent = lifeTotals[player];
 
-  // Animate trail bar
+  // Show reset button if life <=0
+  resetBtn.style.display = (lifeTotals[player] <= 0) ? 'block' : 'none';
+
+  // Animate trail bar (pure white)
   if(trail.animation) clearInterval(trail.animation);
   trail.animation = setInterval(()=>{
     let current = parseFloat(trail.style.height || '100') / 100;
@@ -104,7 +116,7 @@ function getDateSuffix(day){
 
 function updateDateTime(){
   const now = new Date();
-  const pstOffset = -7; // PDT UTC-7
+  const pstOffset = -7;
   const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
   const pstTime = new Date(utc + (3600000 * pstOffset));
 
