@@ -14,7 +14,7 @@ body { font-family:sans-serif; margin:0; display:flex; flex-direction:column; he
 h1,h2 { margin:0; }
 .toolbar { display:flex; justify-content:center; align-items:center; padding:10px; background:#222; position:relative; z-index:10; }
 select,input[type='number'] { padding:4px 8px; font-size:1rem; }
-.life-wrapper { display:flex; flex:1; position:relative; }
+.life-wrapper { display:flex; flex:1; position:relative; flex-direction:column; }
 .player { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; position:relative; overflow:hidden; }
 .player-name { font-size:1.2rem; margin-bottom:10px; z-index:2; position:relative; }
 .life-display { font-size:4rem; font-weight:bold; color:white; z-index:2; position:relative; transition: transform 0.2s ease; }
@@ -22,11 +22,11 @@ select,input[type='number'] { padding:4px 8px; font-size:1rem; }
 .control-panel { display:flex; gap:8px; margin-top:10px; align-items:center; z-index:2; position:relative; }
 .player-controls-left { flex-direction:row; }
 .player-controls-right { flex-direction:row-reverse; }
-.life-bar-container { position:absolute; top:0; left:0; right:0; bottom:0; border:5px solid black; box-sizing:border-box; overflow:hidden; min-width:120px; min-height:80px; display:flex; justify-content:center; align-items:center; z-index:0; }
-.life-fill-back { position:absolute; bottom:0; left:0; width:100%; background:rgba(0,0,0,0.3); z-index:0; transition:height 0.5s ease; }
-.life-bar { width:100%; height:100%; transition:background 0.5s ease; }
+.life-bar-container { position:relative; width:90%; border:5px solid black; box-sizing:border-box; overflow:hidden; min-width:120px; min-height:80px; display:flex; justify-content:center; align-items:center; z-index:0; }
+.life-fill-back { position:absolute; bottom:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:0; transition:height 0.5s ease; }
+.life-bar { position:absolute; bottom:0; width:100%; height:100%; z-index:1; transition:height 0.3s ease, background 0.5s ease; }
 .reset-btn { display:none; margin-top:8px; padding:6px 12px; background:#ff3b3b; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:bold; z-index:2; }
-.resize-handle { width:16px; background:#222; cursor:ew-resize; z-index:5; position:absolute; top:0; bottom:0; left:50%; }
+.resize-handle { height:16px; width:100%; background:#222; cursor:ns-resize; position:absolute; left:0; top:50%; z-index:5; }
 .hidden { display:none; }
 </style>
 </head>
@@ -43,7 +43,7 @@ select,input[type='number'] { padding:4px 8px; font-size:1rem; }
 <div id="lifeCounter" class="hidden" style="flex:1; display:flex; flex-direction:column;">
   <div class="toolbar">
     <div class="timestamp">
-      Last Updated: 2025-09-14 23:15 PST<br>
+      Last Updated: 2025-09-14 23:55 PST<br>
       <span id="userTime">User Time: --:--</span>
     </div>
     <div>
@@ -102,23 +102,23 @@ select,input[type='number'] { padding:4px 8px; font-size:1rem; }
 let lifeTotals = { A:20, B:20 };
 let maxLife = 20;
 
-function showPage(page) {
-  document.querySelectorAll('body > div').forEach(div => div.classList.add('hidden'));
+function showPage(page){
+  document.querySelectorAll('body > div').forEach(div=>div.classList.add('hidden'));
   document.getElementById(page).classList.remove('hidden');
 }
 
-function updateLifeDisplay(player) {
-  const lifeBar = document.getElementById('bar' + player);
-  const fillBack = document.getElementById('fillBack' + player);
-  const lifeDisplay = document.getElementById('life' + player);
-  const resetBtn = document.getElementById('reset' + player);
+function updateLifeDisplay(player){
+  const lifeBar = document.getElementById('bar'+player);
+  const fillBack = document.getElementById('fillBack'+player);
+  const lifeDisplay = document.getElementById('life'+player);
+  const resetBtn = document.getElementById('reset'+player);
   const total = lifeTotals[player];
   const percentage = total/maxLife;
 
-  fillBack.style.height = Math.max(0, percentage*100) + '%';
+  lifeBar.style.height = Math.max(0, percentage*100)+'%';
   
   if(total<=0){
-    lifeBar.style.background = 'black';
+    lifeBar.style.background='black';
     resetBtn.style.display='inline-block';
   } else {
     lifeBar.style.background = percentage<=0.25?'red':percentage<=0.75?'goldenrod':'green';
@@ -131,8 +131,8 @@ function updateLifeDisplay(player) {
 }
 
 function adjustLife(player,action){
-  const amount = parseInt(document.getElementById('adjustAmount'+player).value)||1;
-  lifeTotals[player] += (action==='add'?amount:-amount);
+  const amount=parseInt(document.getElementById('adjustAmount'+player).value)||1;
+  lifeTotals[player]+=(action==='add'?amount:-amount);
   updateLifeDisplay(player);
 }
 
@@ -151,30 +151,31 @@ function updatePreset(){
 }
 
 function setCustomLife(){
-  const customValue = parseInt(document.getElementById('customLifeInput').value);
-  if(!isNaN(customValue)&&customValue>0){ maxLife=customValue; lifeTotals.A=lifeTotals.B=customValue; updateLifeDisplay('A'); updateLifeDisplay('B'); }
+  const val=parseInt(document.getElementById('customLifeInput').value);
+  if(!isNaN(val)&&val>0){ maxLife=val; lifeTotals.A=lifeTotals.B=val; updateLifeDisplay('A'); updateLifeDisplay('B'); }
 }
 
 function updateUserTime(){
-  const now = new Date();
+  const now=new Date();
   const timeString = now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
   document.getElementById('userTime').textContent=`User Time: ${timeString}`;
 }
 
-// Resize scrollbar handle
+// Vertical resize handle
 let isResizing=false;
 const handle=document.getElementById('resizeHandle');
 
-handle.addEventListener('mousedown',e=>{isResizing=true; e.preventDefault();});
+handle.addEventListener('mousedown',e=>{isResizing=true;e.preventDefault();});
 document.addEventListener('mousemove',e=>{
   if(!isResizing) return;
   const containerA=document.getElementById('containerA');
   const containerB=document.getElementById('containerB');
-  let newWidth=e.clientX-containerA.getBoundingClientRect().left;
-  newWidth=Math.max(newWidth,120);
-  containerA.style.width=newWidth+'px';
-  containerB.style.width=newWidth+'px';
-  handle.style.left=newWidth+'px';
+  const wrapperRect=containerA.parentElement.getBoundingClientRect();
+  let newHeight = e.clientY - wrapperRect.top;
+  newHeight = Math.max(newHeight, 80); // min height for numbers
+  containerA.style.height=newHeight+'px';
+  containerB.style.height=newHeight+'px';
+  handle.style.top=newHeight+'px';
 });
 document.addEventListener('mouseup',()=>{isResizing=false;});
 
