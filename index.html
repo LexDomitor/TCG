@@ -10,7 +10,7 @@ body { margin:0; font-family:sans-serif; background:#111; color:white; display:f
 .btn { padding:8px 16px; border:none; border-radius:6px; color:white; font-weight:bold; cursor:pointer; }
 .blue { background:#3b82f6; } .green { background:#22c55e; } .red { background:#ff3b3b; }
 .life-wrapper { display:flex; flex:1; }
-.player-container { flex:1; position:relative; display:flex; justify-content:center; align-items:flex-end; border:5px solid #a6ff00; /* slime border */ box-sizing:border-box; min-width:100px; }
+.player-container { flex:1; position:relative; display:flex; justify-content:center; align-items:flex-end; border:5px solid black; box-sizing:border-box; min-width:100px; }
 .life-bar { position:absolute; bottom:0; width:100%; background:green; transition:height 0.3s ease, background 0.3s ease; }
 .player-number { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-size:4rem; font-weight:bold; z-index:2; }
 .control-panel { display:flex; justify-content:center; gap:8px; margin-top:8px; }
@@ -40,12 +40,6 @@ body { margin:0; font-family:sans-serif; background:#111; color:white; display:f
         <option value="custom">CUSTOM</option>
       </select>
       <input type="number" id="customLifeInput" class="hidden" placeholder="Custom Life" min="1" onchange="setCustomLife()">
-    </div>
-    <div>
-      <label>Border Scale: </label>
-      <button class="btn blue" onclick="adjustBorder(1)">+</button>
-      <button class="btn green" onclick="adjustBorder(-1)">-</button>
-      <span id="borderScaleValue">5</span>
     </div>
     <button class="btn blue" onclick="showPage('home')">Home</button>
   </div>
@@ -85,7 +79,6 @@ body { margin:0; font-family:sans-serif; background:#111; color:white; display:f
 <script>
 let lifeTotals = {A:20,B:20};
 let maxLife = 20;
-let borderScale = 5;
 
 // PAGE SWITCH
 function showPage(page){
@@ -147,15 +140,6 @@ function updatePreset(){
 function setCustomLife(){
   const val=parseInt(document.getElementById('customLifeInput').value);
   if(!isNaN(val)&&val>0){ maxLife=val; lifeTotals.A=lifeTotals.B=val; updateLifeDisplay('A'); updateLifeDisplay('B'); }
-}
-
-// BORDER SCALE
-function adjustBorder(factor){
-  borderScale += factor;
-  if(borderScale<1) borderScale=1;
-  document.getElementById('borderScaleValue').textContent=borderScale;
-  document.getElementById('containerA').style.borderWidth=borderScale+'px';
-  document.getElementById('containerB').style.borderWidth=borderScale+'px';
 }
 
 // INIT
