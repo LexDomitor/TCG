@@ -7,26 +7,25 @@
 <style>
 body { font-family:sans-serif; margin:0; display:flex; flex-direction:column; height:100vh; background:#111; color:white; overflow:hidden; }
 .timestamp { position:absolute; top:5px; left:10px; font-size:0.8rem; color:#888; line-height:1.2; z-index:10; }
-.btn { padding:8px 16px; border-radius:8px; color:white; text-decoration:none; font-weight:bold; box-shadow:0 2px 5px rgba(0,0,0,0.3); cursor:pointer; border:none; z-index:10; position:relative; }
+.btn { padding:8px 16px; border-radius:8px; color:white; font-weight:bold; cursor:pointer; border:none; margin:0 2px; }
 .blue { background:#3b82f6; } .blue:hover { background:#2563eb; }
 .green { background:#22c55e; } .green:hover { background:#16a34a; }
 .red { background:#ff3b3b; } .red:hover { background:#cc2b2b; }
 h1,h2 { margin:0; }
-.toolbar { display:flex; justify-content:center; align-items:center; padding:10px; background:#222; position:relative; z-index:10; }
+.toolbar { display:flex; justify-content:center; align-items:center; padding:10px; background:#222; position:relative; z-index:10; gap:20px; }
 select,input[type='number'] { padding:4px 8px; font-size:1rem; }
-.life-wrapper { display:flex; flex:1; position:relative; flex-direction:column; }
-.player { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; position:relative; overflow:hidden; }
+.life-wrapper { display:flex; flex:1; justify-content:center; align-items:flex-end; gap:20px; }
+.player { display:flex; flex-direction:column; align-items:center; justify-content:flex-end; position:relative; }
 .player-name { font-size:1.2rem; margin-bottom:10px; z-index:2; position:relative; }
-.life-display { font-size:4rem; font-weight:bold; color:white; z-index:2; position:relative; transition: transform 0.2s ease; }
+.life-display { font-size:3rem; font-weight:bold; color:white; z-index:2; position:relative; transition: transform 0.2s ease; }
 .life-animate { transform:scale(1.2); }
 .control-panel { display:flex; gap:8px; margin-top:10px; align-items:center; z-index:2; position:relative; }
 .player-controls-left { flex-direction:row; }
 .player-controls-right { flex-direction:row-reverse; }
-.life-bar-container { position:relative; width:90%; border:5px solid black; box-sizing:border-box; overflow:hidden; min-width:120px; min-height:80px; display:flex; justify-content:center; align-items:center; z-index:0; }
+.life-bar-container { position:relative; border:5px solid black; min-width:80px; min-height:200px; display:flex; justify-content:center; align-items:flex-end; margin:0 10px; }
 .life-fill-back { position:absolute; bottom:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:0; transition:height 0.5s ease; }
 .life-bar { position:absolute; bottom:0; width:100%; height:100%; z-index:1; transition:height 0.3s ease, background 0.5s ease; }
 .reset-btn { display:none; margin-top:8px; padding:6px 12px; background:#ff3b3b; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:bold; z-index:2; }
-.resize-handle { height:16px; width:100%; background:#222; cursor:ns-resize; position:absolute; left:0; top:50%; z-index:5; }
 .hidden { display:none; }
 </style>
 </head>
@@ -46,6 +45,7 @@ select,input[type='number'] { padding:4px 8px; font-size:1rem; }
       Last Updated: 2025-09-14 23:55 PST<br>
       <span id="userTime">User Time: --:--</span>
     </div>
+
     <div>
       <label for="presetSelect">Preset: </label>
       <select id="presetSelect" onchange="updatePreset()">
@@ -55,6 +55,14 @@ select,input[type='number'] { padding:4px 8px; font-size:1rem; }
       </select>
       <input id="customLifeInput" type="number" min="1" placeholder="Custom Life" class="hidden" onchange="setCustomLife()">
     </div>
+
+    <div>
+      <label>Border Scale: </label>
+      <button class="btn blue" onclick="adjustBorder(1)">+</button>
+      <button class="btn green" onclick="adjustBorder(-1)">-</button>
+      <span id="borderScaleValue">5</span>
+    </div>
+
     <button class="btn blue" onclick="showPage('home')">Home</button>
   </div>
 
@@ -88,8 +96,6 @@ select,input[type='number'] { padding:4px 8px; font-size:1rem; }
       </div>
       <button class="reset-btn" id="resetB" onclick="resetLife('B')">Reset HP</button>
     </div>
-
-    <div class="resize-handle" id="resizeHandle"></div>
   </div>
 </div>
 
@@ -101,6 +107,7 @@ select,input[type='number'] { padding:4px 8px; font-size:1rem; }
 <script>
 let lifeTotals = { A:20, B:20 };
 let maxLife = 20;
+let borderScale = 5;
 
 function showPage(page){
   document.querySelectorAll('body > div').forEach(div=>div.classList.add('hidden'));
@@ -158,30 +165,4 @@ function setCustomLife(){
 function updateUserTime(){
   const now=new Date();
   const timeString = now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-  document.getElementById('userTime').textContent=`User Time: ${timeString}`;
-}
-
-// Vertical resize handle
-let isResizing=false;
-const handle=document.getElementById('resizeHandle');
-
-handle.addEventListener('mousedown',e=>{isResizing=true;e.preventDefault();});
-document.addEventListener('mousemove',e=>{
-  if(!isResizing) return;
-  const containerA=document.getElementById('containerA');
-  const containerB=document.getElementById('containerB');
-  const wrapperRect=containerA.parentElement.getBoundingClientRect();
-  let newHeight = e.clientY - wrapperRect.top;
-  newHeight = Math.max(newHeight, 80); // min height for numbers
-  containerA.style.height=newHeight+'px';
-  containerB.style.height=newHeight+'px';
-  handle.style.top=newHeight+'px';
-});
-document.addEventListener('mouseup',()=>{isResizing=false;});
-
-updateLifeDisplay('A'); updateLifeDisplay('B');
-updateUserTime(); setInterval(updateUserTime,60000);
-</script>
-
-</body>
-</html>
+  document.get
