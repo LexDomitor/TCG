@@ -7,7 +7,7 @@
 <style>
 body { margin:0; font-family:sans-serif; background:#111; color:white; display:flex; flex-direction:column; height:100vh; }
 .info-bar { background:#444; padding:5px 10px; font-size:0.9rem; display:flex; justify-content:space-between; color:#eee; }
-.toolbar { display:flex; align-items:center; justify-content:center; gap:20px; padding:10px; background:#222; flex-wrap:wrap; }
+.toolbar { display:flex; align-items:center; justify-content:center; gap:20px; padding:10px; background:#222; }
 .btn { padding:8px 16px; border:none; border-radius:6px; color:white; font-weight:bold; cursor:pointer; }
 .blue { background:#3b82f6; } .green { background:#22c55e; } .red { background:#ff3b3b; }
 .life-wrapper { display:flex; flex:1; }
@@ -39,20 +39,6 @@ body { margin:0; font-family:sans-serif; background:#111; color:white; display:f
 <!-- LIFE COUNTER PAGE -->
 <div id="lifeCounter" class="hidden" style="flex:1; display:flex; flex-direction:column;">
   <div class="toolbar">
-    <div>
-      <label>Preset: </label>
-      <select id="presetSelect" onchange="updatePreset()">
-        <option value="standard">STANDARD (20)</option>
-        <option value="commander">COMMANDER (40)</option>
-        <option value="custom">CUSTOM</option>
-      </select>
-      <input type="number" id="customLifeInput" class="hidden" placeholder="Custom Life" min="1" onchange="setCustomLife()">
-    </div>
-    <div>
-      <label>Border Scale: </label>
-      <button class="btn blue" onclick="adjustBorder(1)">+</button>
-      <button class="btn green" onclick="adjustBorder(-1)">-</button>
-    </div>
     <button class="btn blue" onclick="showPage('home')">Home</button>
   </div>
 
@@ -91,7 +77,6 @@ body { margin:0; font-family:sans-serif; background:#111; color:white; display:f
 <script>
 let lifeTotals = {A:20,B:20};
 let maxLife = 20;
-let borderScale = 5;
 
 // USER TIME UPDATE
 function updateUserTime(){
@@ -106,11 +91,6 @@ function showPage(page){
   document.querySelectorAll('body > div').forEach(div=>div.classList.add('hidden'));
   document.getElementById(page).classList.remove('hidden');
   if(page==='lifeCounter'){
-    const presetSelect = document.getElementById('presetSelect');
-    if(maxLife===20) presetSelect.value='standard';
-    else if(maxLife===40) presetSelect.value='commander';
-    else presetSelect.value='custom';
-    document.getElementById('customLifeInput').value = (presetSelect.value==='custom')?maxLife:'';
     updateLifeDisplay('A');
     updateLifeDisplay('B');
   }
@@ -146,34 +126,6 @@ function resetLife(player){
   lifeTotals[player]=maxLife;
   updateLifeDisplay(player);
 }
-
-// PRESETS
-function updatePreset(){
-  const preset=document.getElementById('presetSelect').value;
-  const customInput=document.getElementById('customLifeInput');
-  if(preset==='standard'){ customInput.classList.add('hidden'); maxLife=20; lifeTotals.A=lifeTotals.B=20; }
-  else if(preset==='commander'){ customInput.classList.add('hidden'); maxLife=40; lifeTotals.A=lifeTotals.B=40; }
-  else { customInput.classList.remove('hidden'); customInput.focus(); }
-  updateLifeDisplay('A'); updateLifeDisplay('B');
-}
-
-// CUSTOM LIFE
-function setCustomLife(){
-  const val=parseInt(document.getElementById('customLifeInput').value);
-  if(!isNaN(val)&&val>0){ maxLife=val; lifeTotals.A=lifeTotals.B=val; updateLifeDisplay('A'); updateLifeDisplay('B'); }
-}
-
-// BORDER SCALE ADJUST
-function adjustBorder(factor){
-  borderScale += factor;
-  if(borderScale<1) borderScale=1;
-  document.getElementById('containerA').style.borderWidth=borderScale+'px';
-  document.getElementById('containerB').style.borderWidth=borderScale+'px';
-}
-
-// INIT
-updateLifeDisplay('A');
-updateLifeDisplay('B');
 </script>
 
 </body>
